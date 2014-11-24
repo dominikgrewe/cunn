@@ -1,3 +1,5 @@
+#include "utils.h"
+
 // WARNING: this module is incomplete - and just meant for reference for now.
 
 // Kernel for fast unfold+copy
@@ -149,7 +151,8 @@ static int cunn_SpatialConvolutionMM_BHWD_updateOutput(lua_State *L) {
 
             // Do GEMM_BHWD (note: this is a bit confusing because gemm assumes column-major matrices)
             THCudaBlas_gemm(
-                't', 't',
+                getCutorchState(L)->blasState,
+		't', 't',
                 m, n, k,
                 1,
                 THCudaTensor_data(weight), k,

@@ -1,3 +1,5 @@
+#include "utils.h"
+
 // CUDA: grid stride looping
 #define CUDA_KERNEL_LOOP(i, n)                        \
   for (int i = blockIdx.x * blockDim.x + threadIdx.x; \
@@ -187,7 +189,8 @@ static int cunn_SpatialConvolutionMM_updateOutput(lua_State *L) {
 
     // Do GEMM (note: this is a bit confusing because gemm assumes column-major matrices)
     THCudaBlas_gemm(
-        't', 'n',
+        getCutorchState(L)->blasState,
+	't', 'n',
         n_, m_, k_,
         1,
         THCudaTensor_data(ones), k_,
@@ -211,7 +214,8 @@ static int cunn_SpatialConvolutionMM_updateOutput(lua_State *L) {
 
     // Do GEMM (note: this is a bit confusing because gemm assumes column-major matrices)
     THCudaBlas_gemm(
-        'n', 'n',
+        getCutorchState(L)->blasState,
+	'n', 'n',
         n, m, k,
         1,
         THCudaTensor_data(columns), n,
@@ -308,7 +312,8 @@ static int cunn_SpatialConvolutionMM_updateGradInput(lua_State *L) {
 
     // Do GEMM (note: this is a bit confusing because gemm assumes column-major matrices)
     THCudaBlas_gemm(
-        'n', 't',
+        getCutorchState(L)->blasState,
+	'n', 't',
         n, m, k,
         1,
         THCudaTensor_data(gradOutput_n), n,
@@ -422,7 +427,8 @@ static int cunn_SpatialConvolutionMM_accGradParameters(lua_State *L) {
 
     // Do GEMM (note: this is a bit confusing because gemm assumes column-major matrices)
     THCudaBlas_gemm(
-        't', 'n',
+        getCutorchState(L)->blasState,
+	't', 'n',
         n, m, k,
         scale,
         THCudaTensor_data(columns), k,
@@ -439,7 +445,8 @@ static int cunn_SpatialConvolutionMM_accGradParameters(lua_State *L) {
 
     // Do GEMV (note: this is a bit confusing because gemv assumes column-major matrices)
     THCudaBlas_gemv(
-        't',
+        getCutorchState(L)->blasState,
+	't',
         k_, m_,
         scale,
         THCudaTensor_data(gradOutput_n), k_,

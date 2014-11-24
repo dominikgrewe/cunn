@@ -21,7 +21,7 @@ LIST(APPEND CUDA_NVCC_FLAGS "-arch=sm_20")
 INCLUDE_DIRECTORIES("${Torch_INSTALL_INCLUDE}/THC")
 LINK_DIRECTORIES("${Torch_INSTALL_LIB}")
 
-SET(src-cuda init.cu)
+SET(src-cuda init.cu utils.c)
 SET(luasrc init.lua test/test.lua)
 
 CUDA_ADD_LIBRARY(cunn MODULE ${src-cuda})
